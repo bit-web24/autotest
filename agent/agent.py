@@ -13,7 +13,7 @@ from agent.planner.agent import planner
 from agent.coder.agent import coder
 from agent.executor.agent import executor
 from agent.tools import client
-from agent.models import local_llm, groq_llm
+from agent.models import instructor
 
 
 def add_user_message(state: AgentState, user_text: str) -> AgentState:
@@ -33,12 +33,14 @@ async def build_agent():
         ]
     )
 
-    model = local_llm
+    model = instructor
     workflow = create_supervisor(
         supervisor_name="workflow_manager",
         model=model,
         agents=[planner_agent, coder_agent, executor_agent],
         prompt=_supervisor_prompt,
+        add_handoff_messages=True,
+        add_handoff_back_messages=True,
     )
 
     return workflow.compile()

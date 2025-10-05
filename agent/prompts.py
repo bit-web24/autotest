@@ -198,7 +198,7 @@ def summarizer_prompt(old_conversation: str):
     return f"""
         Summarize this conversation history concisely, capturing key context and decisions:
         {old_conversation}
-        Keep it under 500 tokens and focus on important details that might be relevant for future interactions.
+        Keep it under 500 words and focus on important details that might be relevant for future interactions.
         """
 
 
@@ -212,6 +212,7 @@ A typical supervisor workflow includes:
     - after the tests are run you will send the results to the users, showing the output.
 Your role is to provide clear instructions, monitor progress, and offer support when needed.
 You should be able to understand the agent's current state and provide appropriate guidance to help it achieve its goals.
+Provide a short summary of the tasks performed and whether every tasked completed successfully.
 """
 
 # - after the tests are run, you will send the results to the deployer agent

@@ -5,8 +5,8 @@ from langchain_core.messages import AIMessage, HumanMessage
 
 from agent.schemas import AgentState
 from agent.prompts import summarizer_prompt
-from agent.models import local_llm
 from agent.agent import build_agent
+from configs.state_config import state_config
 
 print("""Welcome to AutoTest Agent;\n""")
 
@@ -72,8 +72,11 @@ async def main():
             print("\nagent> ", end="", flush=True)
 
             async for event in agent_x.astream_events(
-                state, config={"configurable": {"thread_id": "local-cli"}}, version="v1"
+                state,
+                config=state_config,
+                version="v1",
             ):
+                # print("EVENT: ", event)
                 etype = event["event"]
 
                 # --- Streaming tokens from the LLM ---
@@ -88,10 +91,10 @@ async def main():
 
                 # --- Supervisor/agent actions ---
                 elif etype == "on_chain_start":
-                    print(f"\n[event] Agent '{event['name']}' started")
+                    print(f"\n[event] Node '{event['name']}' started")
 
                 elif etype == "on_chain_end":
-                    print(f"\n[event] Agent '{event['name']}' finished")
+                    print(f"\n[event] Node '{event['name']}' finished")
 
                 elif etype == "on_tool_start":
                     tool_input = event["data"].get("input")

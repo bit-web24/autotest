@@ -5,3 +5,4 @@ from langgraph.graph.message import add_messages
 
 class CoderState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
+    is_done: bool

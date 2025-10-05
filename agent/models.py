@@ -14,3 +14,15 @@ groq_llm = ChatGroq(
     model=settings.MODEL,
     api_key=SecretStr(settings.GROQ_API_KEY),
 )
+
+instructor = ChatOpenAI(
+    model="qwen3:4b-instruct",
+    base_url="http://localhost:11434/v1",
+    temperature=0.2,
+)
+
+coder_llm = ChatOpenAI(
+    model="qwen2.5-coder:1.5b",
+    base_url="http://localhost:11434/v1",
+    temperature=0.2,
+)
