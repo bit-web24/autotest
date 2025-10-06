@@ -7,6 +7,7 @@ from agent.executor.schemas import ExecutorState
 from agent.executor.prompts import executor_prompt
 from agent.executor.tools import client
 from agent.models import local_llm
+from .hooks.pre_model_hook import pre_model_hook
 
 
 def add_supervisor_message(state: ExecutorState, supervisor_text: str) -> ExecutorState:
@@ -32,6 +33,7 @@ async def executor():
         tools=tools,
         checkpointer=checkpointer,
         prompt=_executor_prompt,
+        pre_model_hook=pre_model_hook,
     )
 
     return code_executor

@@ -22,5 +22,7 @@ dependencies = [
     "langchain-openai>=0.3.33",
     "langgraph-supervisor>=0.0.29",
     "colorama>=0.4.6",
+    "langgraph-prebuilt>=0.6.4",
+    "langmem>=0.0.29",
 ]
 

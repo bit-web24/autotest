@@ -12,3 +12,5 @@ wheels/
 .ipynb_checkpoints/
 .jupyter/
 .env
+projects/
+tmp/

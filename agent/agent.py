@@ -14,6 +14,7 @@ from agent.coder.agent import coder
 from agent.executor.agent import executor
 from agent.tools import client
 from agent.models import instructor
+from .hooks.pre_model_hook import pre_model_hook
 
 
 def add_user_message(state: AgentState, user_text: str) -> AgentState:
@@ -41,6 +42,7 @@ async def build_agent():
         prompt=_supervisor_prompt,
         add_handoff_messages=True,
         add_handoff_back_messages=True,
+        pre_model_hook=pre_model_hook,
     )
 
     return workflow.compile()

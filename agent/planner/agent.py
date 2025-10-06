@@ -7,6 +7,7 @@ from agent.models import groq_llm
 from agent.planner.schemas import PlannerState
 from agent.planner.prompts import planner_prompt
 from agent.planner.tools import client
+from .hooks.pre_model_hook import pre_model_hook
 
 
 def add_supervisor_message(state: PlannerState, supervisor_text: str) -> PlannerState:
@@ -31,6 +32,7 @@ async def planner():
         tools=tools,
         checkpointer=checkpointer,
         prompt=_planner_prompt,
+        # pre_model_hook=pre_model_hook,
     )
 
     return task_planner

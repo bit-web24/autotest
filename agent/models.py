@@ -26,3 +26,9 @@ coder_llm = ChatOpenAI(
     base_url="http://localhost:11434/v1",
     temperature=0.2,
 )
+
+gemma3 = ChatOpenAI(
+    model="gemma3:1b",
+    base_url="http://localhost:11434/v1",
+    temperature=0.2,
+)
