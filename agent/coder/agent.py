@@ -28,7 +28,7 @@ async def coder():
 
     tools = await client.get_tools()
 
-    model = groq_llm.bind_tools(tools=tools)
+    model = groq_llm  # .bind_tools(tools=tools)
     checkpointer = InMemorySaver()
     _coder = create_react_agent(
         name="coder_agent",

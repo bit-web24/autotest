@@ -6,7 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from agent.executor.schemas import ExecutorState
 from agent.executor.prompts import executor_prompt
 from agent.executor.tools import client
-from agent.models import local_llm
+from agent.models import local_llm, groq_llm
 from .hooks.pre_model_hook import pre_model_hook
 
 
@@ -25,7 +25,7 @@ async def executor():
 
     tools = await client.get_tools()
 
-    model = local_llm.bind_tools(tools=tools)
+    model = groq_llm  # .bind_tools(tools=tools)
     checkpointer = InMemorySaver()
     code_executor = create_react_agent(
         name="executor_agent",

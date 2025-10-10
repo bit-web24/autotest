@@ -1,5 +1,6 @@
 import aiosqlite
-from configs.settings import settings
+from settings import settings
+
 
 # Checkpoint store for graph (conversation memory)
 async def checkpoint_connection():

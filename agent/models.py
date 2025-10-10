@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from pydantic.types import SecretStr
-from configs.settings import settings
+from settings import settings
 
 local_llm = ChatOpenAI(
     model="qwen3:1.7b-q4_K_M",

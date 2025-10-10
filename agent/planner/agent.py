@@ -24,6 +24,7 @@ async def planner():
     )
 
     tools = await client.get_tools()
+
     model = groq_llm.bind_tools(tools=tools)
     checkpointer = InMemorySaver()
     task_planner = create_react_agent(

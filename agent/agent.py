@@ -7,13 +7,13 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph_supervisor import create_supervisor
 
 from agent.schemas import AgentState
-from configs.settings import settings
+from settings import settings
 from agent.prompts import supervisor_prompt
 from agent.planner.agent import planner
 from agent.coder.agent import coder
 from agent.executor.agent import executor
 from agent.tools import client
-from agent.models import instructor
+from agent.models import instructor, groq_llm
 from .hooks.pre_model_hook import pre_model_hook
 
 
@@ -34,11 +34,12 @@ async def build_agent():
         ]
     )
 
-    model = instructor
+    model = groq_llm
     workflow = create_supervisor(
         supervisor_name="workflow_manager",
         model=model,
         agents=[planner_agent, coder_agent, executor_agent],
+        tools=[],
         prompt=_supervisor_prompt,
         add_handoff_messages=True,
         add_handoff_back_messages=True,
