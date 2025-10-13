@@ -1,4 +1,3 @@
-from tkinter.constants import W
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from settings import WORK_DIR
 
@@ -10,7 +9,7 @@ client = MultiServerMCPClient(
             "args": [
                 "-y",
                 "@modelcontextprotocol/server-filesystem",
-                f"{WORK_DIR}",
+                f"{WORK_DIR.absolute()}",
             ],
         },
         "context7": {

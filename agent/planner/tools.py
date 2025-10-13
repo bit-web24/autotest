@@ -10,7 +10,7 @@ client = MultiServerMCPClient(
             "args": [
                 "-y",
                 "@modelcontextprotocol/server-filesystem",
-                f"{WORK_DIR}",
+                f"{WORK_DIR.absolute()}",
             ],
         },
     }

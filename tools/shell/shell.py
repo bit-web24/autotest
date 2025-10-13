@@ -4,17 +4,18 @@ Uses FastMCP 2.0 to provide shell command execution capabilities
 Runs via HTTP transport and executes commands in a specified working directory
 """
 
+from pathlib import Path
+import sys
 import subprocess
 import shlex
-from pathlib import Path
+
 from fastmcp import FastMCP
-import sys
-from pathlib import Path
+
+from settings import WORK_DIR
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(PROJECT_ROOT))
 
-from settings import WORK_DIR
 
 # Initialize FastMCP server
 mcp = FastMCP(
@@ -25,6 +26,30 @@ mcp = FastMCP(
 
 @mcp.tool()
 async def run_shell_command(
+    command: str, timeout: int = 30, capture_output: bool = True, cwd: str | None = None
+) -> dict:
+    """
+    Execute a shell command and return the result.
+
+    Args:
+        command: The shell command to execute
+        timeout: Maximum execution time in seconds (default: 30)
+        capture_output: Whether to capture stdout/stderr (default: True)
+        cwd: Working directory for command execution (default: projects dir)
+
+    Returns:
+        Dictionary containing:
+        - returncode: Exit code of the command
+        - stdout: Standard output (if captured)
+        - stderr: Standard error (if captured)
+        - success: Boolean indicating if command succeeded
+        - cwd: Working directory used
+    """
+    return await _execute_shell_command(command, timeout, capture_output, cwd)
+
+
+# Helper function that does the actual work
+async def _execute_shell_command(
     command: str, timeout: int = 30, capture_output: bool = True, cwd: str | None = None
 ) -> dict:
     """
@@ -90,11 +115,8 @@ async def run_shell_command(
 
 
 @mcp.tool()
-async def run_shell_command_safe(
-    command: str,
-    allowed_commands: list[str] | None = None,
-    timeout: int = 30,
-    cwd: str | None = None,
+async def execute_command(
+    command: str, timeout: int = 30, cwd: str | None = None
 ) -> dict:
     """
     Execute a shell command with safety restrictions.
@@ -102,35 +124,38 @@ async def run_shell_command_safe(
 
     Args:
         command: The shell command to execute
-        allowed_commands: List of allowed command prefixes (e.g., ['ls', 'cat', 'grep'])
         timeout: Maximum execution time in seconds
         cwd: Working directory for command execution (default: projects dir)
 
     Returns:
         Dictionary with execution results or error message
     """
-    # Default safe commands if none provided
-    if allowed_commands is None:
-        allowed_commands = [
-            "ls",
-            "cat",
-            "grep",
-            "find",
-            "echo",
-            "pwd",
-            "whoami",
-            "date",
-            "head",
-            "tail",
-            "wc",
-            "tree",
-            "git",
-            "python",
-            "python3",
-            "node",
-            "npm",
-            "pip",
-        ]
+    # Default safe commands
+    allowed_commands = [
+        "ls",
+        "cat",
+        "grep",
+        "find",
+        "echo",
+        "pwd",
+        "whoami",
+        "date",
+        "head",
+        "tail",
+        "wc",
+        "tree",
+        "git",
+        "python",
+        "python3",
+        "node",
+        "npm",
+        "pip",
+        "mkdir",
+        "touch",
+        "cp",
+        "mv",
+        "rm",
+    ]
 
     # Parse the command to get the base command
     try:
@@ -164,7 +189,7 @@ async def run_shell_command_safe(
             }
 
         # Execute if allowed
-        return await run_shell_command(command, timeout=timeout, cwd=cwd)
+        return await _execute_shell_command(command, timeout=timeout, cwd=cwd)
 
     except Exception as e:
         return {
@@ -190,7 +215,7 @@ async def list_directory(path: str = ".", cwd: str | None = None) -> dict:
         Dictionary with directory listing or error
     """
     command = f"ls -la {shlex.quote(path)}"
-    return await run_shell_command(command, cwd=cwd)
+    return await _execute_shell_command(command, cwd=cwd)
 
 
 @mcp.tool()
@@ -214,7 +239,33 @@ async def get_system_info() -> dict:
 
     results = {}
     for key, cmd in commands.items():
-        result = await run_shell_command(cmd)
+        result = await _execute_shell_command(cmd)
+        results[key] = result["stdout"].strip() if result["success"] else "N/A"
+
+    return {"success": True, "system_info": results}
+
+
+async def _get_system_info() -> dict:
+    """
+    Get basic system information.
+
+    Returns:
+        Dictionary with system information including:
+        - hostname, kernel, uptime, etc.
+    """
+    commands = {
+        "hostname": "hostname",
+        "kernel": "uname -r",
+        "os": "cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2 | tr -d '\"'",
+        "uptime": "uptime -p",
+        "current_user": "whoami",
+        "current_dir": "pwd",
+        "work_dir": f"echo {WORK_DIR.absolute()}",
+    }
+
+    results = {}
+    for key, cmd in commands.items():
+        result = await _execute_shell_command(cmd)
         results[key] = result["stdout"].strip() if result["success"] else "N/A"
 
     return {"success": True, "system_info": results}
@@ -236,12 +287,27 @@ async def get_work_directory() -> dict:
     }
 
 
+async def _get_work_directory() -> dict:
+    """
+    Get the current working directory where commands are executed.
+
+    Returns:
+        Dictionary with working directory information
+    """
+    return {
+        "success": True,
+        "work_dir": str(WORK_DIR.absolute()),
+        "exists": WORK_DIR.exists(),
+        "is_dir": WORK_DIR.is_dir(),
+    }
+
+
 @mcp.resource("shell://system-info")
 async def system_info_resource() -> str:
     """
     Resource providing system information as text.
     """
-    info = await get_system_info()
+    info = await _get_system_info()
     if info["success"]:
         lines = [
             f"{k.replace('_', ' ').title()}: {v}"
@@ -256,7 +322,7 @@ async def work_dir_resource() -> str:
     """
     Resource providing working directory information.
     """
-    info = await get_work_directory()
+    info = await _get_work_directory()
     return f"Working Directory: {info['work_dir']}\nExists: {info['exists']}\nIs Directory: {info['is_dir']}"
 
 

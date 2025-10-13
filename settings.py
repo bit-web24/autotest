@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from pathlib import Path
 
-WORK_DIR = (Path(__file__).parent / "projects").absolute()
+WORK_DIR = Path(__file__).parent / "projects"
 WORK_DIR.mkdir(exist_ok=True)
 
 
