@@ -4,7 +4,7 @@ from pydantic.types import SecretStr
 from settings import settings
 
 local_llm = ChatOpenAI(
-    model="granite4:micro",
+    model="qwen3:1.7b-q4_K_M",
     base_url="http://localhost:11434/v1",
     temperature=0.1,
 )

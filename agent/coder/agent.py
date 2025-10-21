@@ -7,9 +7,11 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from agent.coder.schemas import CoderState
 from agent.coder.prompts import coder_prompt
 from agent.coder.tools import client
-from agent.models import groq_llm, local_llm as _model
 
-from agent.hooks.pre_model_hook import summarization_node, SummaryState
+# from agent.models import local_llm as _model
+from agent.models import groq_llm as _model
+
+from agent.coder.hooks.pre_model_hook import summarization_node, SummaryState
 
 
 def add_supervisor_message(state: CoderState, supervisor_text: str) -> CoderState:
