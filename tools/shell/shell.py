@@ -11,10 +11,10 @@ import shlex
 
 from fastmcp import FastMCP
 
-from settings import WORK_DIR
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(PROJECT_ROOT))
+
+from settings import WORK_DIR
 
 
 # Initialize FastMCP server

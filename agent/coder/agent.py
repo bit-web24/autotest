@@ -7,10 +7,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from agent.coder.schemas import CoderState
 from agent.coder.prompts import coder_prompt
 from agent.coder.tools import client
-from agent.models import groq_llm, coder_llm
+from agent.models import groq_llm, local_llm as _model
 
-# from hooks.pre_model_hook import summarization_node, SummaryState
-from .hooks.pre_model_hook import pre_model_hook
+from agent.hooks.pre_model_hook import summarization_node, SummaryState
 
 
 def add_supervisor_message(state: CoderState, supervisor_text: str) -> CoderState:
@@ -28,7 +27,7 @@ async def coder():
 
     tools = await client.get_tools()
 
-    model = groq_llm  # .bind_tools(tools=tools)
+    model = _model.bind_tools(tools=tools)
     checkpointer = InMemorySaver()
     _coder = create_react_agent(
         name="coder_agent",
@@ -36,8 +35,8 @@ async def coder():
         tools=tools,
         checkpointer=checkpointer,
         prompt=_coder_prompt,
-        pre_model_hook=pre_model_hook,
-        # state_schema=SummaryState,
+        pre_model_hook=summarization_node,
+        state_schema=SummaryState,
     )
 
     return _coder

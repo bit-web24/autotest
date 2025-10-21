@@ -6,8 +6,11 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from agent.executor.schemas import ExecutorState
 from agent.executor.prompts import executor_prompt
 from agent.executor.tools import client
-from agent.models import local_llm, groq_llm
-from .hooks.pre_model_hook import pre_model_hook
+from agent.models import groq_llm, local_llm as _model
+from agent.hooks.pre_model_hook import (
+    SummaryState,
+    summarization_node,
+)  # pre_model_hook
 
 
 def add_supervisor_message(state: ExecutorState, supervisor_text: str) -> ExecutorState:
@@ -25,7 +28,7 @@ async def executor():
 
     tools = await client.get_tools()
 
-    model = groq_llm  # .bind_tools(tools=tools)
+    model = _model.bind_tools(tools=tools)
     checkpointer = InMemorySaver()
     code_executor = create_react_agent(
         name="executor_agent",
@@ -33,7 +36,8 @@ async def executor():
         tools=tools,
         checkpointer=checkpointer,
         prompt=_executor_prompt,
-        pre_model_hook=pre_model_hook,
+        pre_model_hook=summarization_node,
+        state_schema=SummaryState,
     )
 
     return code_executor

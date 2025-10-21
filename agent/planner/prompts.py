@@ -32,6 +32,7 @@ Additional Instructions for Existing Projects:
   modifications should be made.
 - Always aim to preserve existing code while integrating new functionality
   cleanly and logically.
+- Never Create tables in the plan.
 """
 
 

@@ -17,6 +17,6 @@ client = MultiServerMCPClient(
             "command": "npx",
             "args": ["-y", "@upstash/context7-mcp@latest"],
         },
-        "shell": {"transport": "streamable_http", "url": "http://127.0.0.1:8081/mcp"},
+        # "shell": {"transport": "streamable_http", "url": "http://127.0.0.1:8081/mcp"},
     }
 )

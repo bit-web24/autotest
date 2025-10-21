@@ -73,7 +73,7 @@ async def main():
         except KeyboardInterrupt:
             print("\nInterrupted. Type 'quit' to exit.")
         except Exception as e:
-            print(f"\nError: {e}")
+            print(f"\nError: {e.args}")
             continue
 
 
