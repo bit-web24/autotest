@@ -2,7 +2,7 @@ from collections import defaultdict
 from langchain_core.messages.utils import count_tokens_approximately, trim_messages
 from agent.executor.schemas import ExecutorState
 from langmem.short_term import SummarizationNode
-from agent.models import gemma3
+from agent.models import local_llm as _model
 from typing import Any
 
 # This function will be added as a new node in ReAct agent graph
@@ -31,8 +31,8 @@ class SummaryState(ExecutorState):
 # This function will be called every time before the node that calls LLM
 summarization_node = SummarizationNode(
     token_counter=count_tokens_approximately,
-    model=gemma3,
-    max_tokens=1000,
-    max_summary_tokens=500,
-    output_messages_key="llm_input_messages",
+    model=_model,
+    max_tokens=4000,
+    max_summary_tokens=400,
+    output_messages_key="messages",
 )

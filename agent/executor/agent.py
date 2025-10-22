@@ -6,8 +6,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from agent.executor.schemas import ExecutorState
 from agent.executor.prompts import executor_prompt
 from agent.executor.tools import client
-from agent.models import groq_llm, local_llm as _model
-from agent.hooks.pre_model_hook import (
+
+# from agent.models import local_llm as _model
+from agent.models import groq_llm as _model
+from agent.executor.hooks.pre_model_hook import (
     SummaryState,
     summarization_node,
 )  # pre_model_hook

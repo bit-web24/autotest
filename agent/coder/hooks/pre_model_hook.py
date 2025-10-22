@@ -1,6 +1,6 @@
 from agent.coder.schemas import CoderState
 from langmem.short_term import SummarizationNode
-from agent.models import gemma3
+from agent.models import local_llm as _model
 from langchain_core.messages.utils import count_tokens_approximately, trim_messages
 from typing import Any
 
@@ -30,8 +30,8 @@ class SummaryState(CoderState):
 # This function will be called every time before the node that calls LLM
 summarization_node = SummarizationNode(
     token_counter=count_tokens_approximately,
-    model=gemma3,
+    model=_model,
     max_tokens=4000,
-    max_summary_tokens=500,
+    max_summary_tokens=400,
     output_messages_key="messages",
 )
