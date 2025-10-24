@@ -3,9 +3,9 @@ from typing import cast
 
 from langchain_core.messages import HumanMessage
 
-from agent.schemas import AgentState
-from agent.agent import build_agent
-from configs.state_config import state_config
+from agent.supervisor.schemas import AgentState
+from agent.supervisor.agent import build_agent
+from agent.configs.state_config import state_config
 
 print("""Welcome to AutoTest Agent;\n""")
 

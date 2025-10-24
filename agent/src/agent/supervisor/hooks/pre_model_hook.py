@@ -1,6 +1,6 @@
 from langchain_core.messages.utils import count_tokens_approximately, trim_messages
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
-from agent.schemas import AgentState
+from agent.supervisor.schemas import AgentState
 from langmem.short_term import SummarizationNode
 
 # from agent.models import groq_llm as _model

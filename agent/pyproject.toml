@@ -1,0 +1,31 @@
+[project]
+name = "agent"
+version = "0.1.0"
+description = "An Agentic AI for testing random code"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiosqlite>=0.21.0",
+    "fastmcp>=2.12.3",
+    "langchain>=0.3.27",
+    "langchain-mcp-adapters>=0.1.9",
+    "langgraph>=0.6.7",
+    "langgraph-checkpoint-sqlite>=2.0.11",
+    "python-dotenv>=1.1.1",
+    "pyppeteer>=2.0.0",
+    "nest-asyncio>=1.6.0",
+    "langchain-groq>=0.3.8",
+    "langchain-openai>=0.3.33",
+    "langgraph-supervisor>=0.0.29",
+    "colorama>=0.4.6",
+    "langgraph-prebuilt>=0.6.4",
+    "langmem>=0.0.29",
+    "fastapi>=0.119.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatchling.build.targets.wheel]
+packages = ["src/agent"]
