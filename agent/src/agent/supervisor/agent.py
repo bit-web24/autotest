@@ -6,17 +6,18 @@ from pydantic import SecretStr
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph_supervisor import create_supervisor
 
-from agent.schemas import AgentState
-from settings import settings
-from agent.prompts import supervisor_prompt
+from agent.supervisor.schemas import AgentState
+from agent.settings import settings
+from agent.supervisor.prompts import supervisor_prompt
 from agent.planner.agent import planner
 from agent.coder.agent import coder
 from agent.executor.agent import executor
-from agent.tools import client
+from agent.supervisor.tools import client
+
 
 # from agent.models import local_llm as _model
 from agent.models import groq_llm as _model
-from agent.hooks.pre_model_hook import (
+from agent.supervisor.hooks.pre_model_hook import (
     SummaryState,
     summarization_node,
 )  # pre_model_hook

@@ -1,6 +1,5 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
-from settings import WORK_DIR
-
+from agent.settings import WORK_DIR
 
 client = MultiServerMCPClient(
     {
@@ -13,5 +12,6 @@ client = MultiServerMCPClient(
                 f"{WORK_DIR.absolute()}",
             ],
         },
+        # "shell": {"transport": "streamable_http", "url": "http://127.0.0.1:8081/mcp"},
     }
 )

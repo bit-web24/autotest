@@ -1,0 +1,20 @@
+[project]
+name = "server"
+version = "0.1.0"
+description = "Server For Autotest Agentic System"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.119.1",
+    "agent",
+]
+
+[tool.uv.sources]
+agent = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatchling.build.targets.wheel]
+packages = ["src/server"]
