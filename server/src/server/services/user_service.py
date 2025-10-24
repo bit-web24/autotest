@@ -1,5 +1,5 @@
 from typing import List, Optional
-from app.schemas.user import User, UserCreate, UserUpdate
+from server.schemas.user import User, UserCreate, UserUpdate
 from datetime import datetime
 
 

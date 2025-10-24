@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-from app.schemas.user import User, UserCreate, UserUpdate
-from app.services.user_service import UserService
-from app.dependencies import get_current_user
+from server.schemas.user import User, UserCreate, UserUpdate
+from server.services.user_service import UserService
+from server.dependencies import get_current_user
 
 router = APIRouter()
 user_service = UserService()
