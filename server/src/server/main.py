@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# from app.api.v1.router import api_router
+from server.api.v1.router import api_router
+from server.api.v1.endpoints.events import lifespan
 from server.config import settings
 import uvicorn
 from agent.supervisor.agent import build_agent
@@ -10,6 +11,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description=settings.DESCRIPTION,
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -22,12 +24,12 @@ app.add_middleware(
 )
 
 # Include API router
-# app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to FastAPI", "version": settings.VERSION}
+    return {"message": "Welcome to Autotest[SERVER];", "version": settings.VERSION}
 
 
 @app.get("/health")

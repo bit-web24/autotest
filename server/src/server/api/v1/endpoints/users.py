@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from server.schemas.user import User, UserCreate, UserUpdate
 from server.services.user_service import UserService
-from server.dependencies import get_current_user
+# from server.dependencies import get_current_user
 
 router = APIRouter()
 user_service = UserService()
