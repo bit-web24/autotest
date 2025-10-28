@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 import json
 
 from agent.supervisor.schemas import AgentState
-from agent.configs import state_config
+from agent.configs.state_config import state_config
 
 from langchain_core.runnables.schema import StreamEvent
 from langchain_core.messages import HumanMessage
