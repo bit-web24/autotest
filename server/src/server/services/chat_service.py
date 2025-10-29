@@ -1,7 +1,9 @@
 import uuid
-from datetime import datetime
-from server.models.chat import Message, Chat, ChatCreate
 from typing import Any
+from datetime import datetime
+
+from server.models.chat import Message, Chat, ChatCreate
+
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 
 
@@ -14,8 +16,8 @@ class ChatService:
             **chat.model_dump(),
             _id=str(uuid.uuid4()),
             messages=[],
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
         )
         result = await self.collection.insert_one(chat.model_dump())
         return _chat if result.acknowledged else None
@@ -26,12 +28,23 @@ class ChatService:
             return Chat(**chat)
         return None
 
-    async def gets(self) -> list[Chat] | None:
+    async def gets(self) -> list[Chat]:
         chats = await self.collection.find().to_list(None)
-        return [Chat(**chat) for chat in chats] if chats else None
+        return [Chat(**chat) for chat in chats] if chats else []
 
     async def update(self, chat_id: str, name: str) -> Chat | None:
-        pass
+        result = await self.collection.update_one(
+            {"_id": chat_id},
+            {
+                "$set": {
+                    "name": name,
+                    "updated_at": datetime.now(),
+                }
+            },
+        )
+        if result.modified_count > 0:
+            return await self.get(chat_id)
+        return None
 
     async def delete(self, chat_id: str) -> None:
         pass

@@ -22,7 +22,6 @@ async def create_chat(
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Create a new chat."""
-    print("Creating chat...")
     chat_service = ChatService(db)
     return await chat_service.create(chat)
 
