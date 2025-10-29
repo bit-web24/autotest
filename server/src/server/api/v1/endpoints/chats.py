@@ -35,6 +35,7 @@ async def create_chat(
 @router.get(
     "/",
     response_model=list[Chat],
+    status_code=200,
 )
 async def get_chats(
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
@@ -53,6 +54,7 @@ async def get_chats(
 @router.get(
     "/{chat_id}",
     response_model=Chat,
+    status_code=200,
 )
 async def get_chat(
     chat_id: str,
@@ -72,6 +74,7 @@ async def get_chat(
 @router.put(
     "/{chat_id}",
     response_model=Chat,
+    status_code=200,
 )
 async def update_chat(
     chat_id: str,
@@ -89,7 +92,11 @@ async def update_chat(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete("/{chat_id}")
+@router.delete(
+    "/{chat_id}",
+    response_model=int,
+    status_code=200,
+)
 async def delete_chat(
     chat_id: str,
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),

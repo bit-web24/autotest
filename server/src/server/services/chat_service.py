@@ -69,23 +69,73 @@ class ChatService:
         return None
 
     async def add_message(self, chat_id: str, message: Message) -> Message | None:
-        pass
+        msg_dict = {
+            "_id": str(uuid.uuid4()),
+            "request": message.request,
+            "response": message.response,
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+        }
+        insert_result = await self.msg_collection.insert_one(msg_dict)
+        if insert_result.acknowledged and insert_result.inserted_id is not None:
+            update_result = await self.collection.update_one(
+                {"_id": chat_id},
+                {
+                    "$push": {
+                        "messages": str(insert_result.inserted_id),
+                    },
+                    "$set": {"updated_at": datetime.now()},
+                },
+            )
+            if update_result.acknowledged and update_result.modified_count > 0:
+                return message
+        return None
 
     async def get_messages(
         self, chat_id: str, limit: int | None
     ) -> list[Message] | None:
-        return None
+        try:
+            messages = await self.msg_collection.find({"chat_id": chat_id}).to_list(
+                limit
+            )
+            return [Message(**msg) for msg in messages]
+        except Exception:
+            return None
 
     async def get_message(self, chat_id: str, message_id: str) -> Message | None:
-        return None
+        result = await self.msg_collection.find_one(
+            {"chat_id": chat_id, "_id": message_id}
+        )
+        if result is None:
+            return None
+        return Message(**result)
 
     async def update_message(
         self, chat_id: str, message_id: str, message: Message
     ) -> Message | None:
-        pass
+        result = await self.msg_collection.update_one(
+            {"chat_id": chat_id, "_id": message_id},
+            {"$set": message.model_dump(exclude_unset=True)},
+        )
+        if result.acknowledged and result.modified_count > 0:
+            return await self.get_message(chat_id, message_id)
 
-    async def delete_message(self, chat_id: str, message_id: str) -> None:
-        pass
+    async def delete_message(self, chat_id: str, message_id: str) -> int | None:
+        """Delete a message from a chat.
+
+        Args:
+            chat_id (str): The ID of the chat to delete the message from.
+            message_id (str): The ID of the message to delete.
+
+        Returns:
+            int | None: The number of deleted documents, or None if the chat was not found.
+        """
+        result = await self.msg_collection.delete_one(
+            {"chat_id": chat_id, "_id": message_id}
+        )
+        if result.acknowledged and result.deleted_count > 0:
+            return result.deleted_count
+        return None
 
     async def delete_messages(self, chat_id: str) -> int | None:
         """Delete all messages in a chat.
