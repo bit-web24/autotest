@@ -1,10 +1,11 @@
 from typing import Any
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from server.config import settings
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class MongoDB(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     client: AsyncIOMotorClient[dict[str, Any]] | None = None
 
 

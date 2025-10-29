@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 
 from agent.supervisor.agent import build_agent
-from agent.supervisor.agent import build_agent
 from server.api.v1.router import api_router
 from server.config import settings
 from server.core.database import connect_to_mongodb, close_mongodb_connection
@@ -54,4 +53,5 @@ async def health_check():
     return {"status": "healthy"}
 
 
-uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

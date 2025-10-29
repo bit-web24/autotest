@@ -1,8 +1,9 @@
 from typing import Any
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from server.models.chat import Message
 from server.services.chat_service import ChatService
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from server.core.database import get_database
 
 router = APIRouter(prefix="/{chat_id}/messages", tags=["Messages"])
 
@@ -11,7 +12,7 @@ router = APIRouter(prefix="/{chat_id}/messages", tags=["Messages"])
 async def add_message(
     chat_id: str,
     message: Message,
-    db: AsyncIOMotorDatabase[dict[str, Any]],
+    db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Add a message to a chat."""
     chat_service = ChatService(db)
@@ -21,7 +22,7 @@ async def add_message(
 @router.get("/")
 async def get_messages(
     chat_id: str,
-    db: AsyncIOMotorDatabase[dict[str, Any]],
+    db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
     limit: int | None = None,
 ):
     """Get all or limited messages in a chat."""
@@ -33,7 +34,7 @@ async def get_messages(
 async def get_message(
     chat_id: str,
     message_id: str,
-    db: AsyncIOMotorDatabase[dict[str, Any]],
+    db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Get a single message by ID."""
     chat_service = ChatService(db)
@@ -45,7 +46,7 @@ async def update_message(
     chat_id: str,
     message_id: str,
     message: Message,
-    db: AsyncIOMotorDatabase[dict[str, Any]],
+    db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Update a message by ID."""
     chat_service = ChatService(db)
@@ -56,7 +57,7 @@ async def update_message(
 async def delete_message(
     chat_id: str,
     message_id: str,
-    db: AsyncIOMotorDatabase[dict[str, Any]],
+    db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Delete a message by ID."""
     chat_service = ChatService(db)
