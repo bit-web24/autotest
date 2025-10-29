@@ -2,7 +2,7 @@ import uuid
 from typing import Any
 from datetime import datetime
 
-from server.models.chat import Message, Chat, ChatCreate
+from server.models.chat import Message, Chat, ChatCreate, ChatUpdate
 
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 
@@ -12,15 +12,19 @@ class ChatService:
         self.collection: AsyncIOMotorCollection[dict[str, Any]] = db.chats
 
     async def create(self, chat: ChatCreate) -> Chat | None:
-        _chat = Chat(
-            **chat.model_dump(),
-            _id=str(uuid.uuid4()),
-            messages=[],
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        )
-        result = await self.collection.insert_one(chat.model_dump())
-        return _chat if result.acknowledged else None
+        chat_dict = {
+            "_id": str(uuid.uuid4()),
+            "name": chat.name,
+            "messages": [],
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+        }
+
+        result = await self.collection.insert_one(chat_dict)
+
+        if result.acknowledged:
+            return Chat(**chat_dict)
+        return None
 
     async def get(self, chat_id: str) -> Chat | None:
         chat = await self.collection.find_one({"_id": chat_id})
@@ -32,12 +36,12 @@ class ChatService:
         chats = await self.collection.find().to_list(None)
         return [Chat(**chat) for chat in chats] if chats else []
 
-    async def update(self, chat_id: str, name: str) -> Chat | None:
+    async def update(self, chat_id: str, chat: ChatUpdate) -> Chat | None:
         result = await self.collection.update_one(
             {"_id": chat_id},
             {
                 "$set": {
-                    "name": name,
+                    "name": chat.name,
                     "updated_at": datetime.now(),
                 }
             },

@@ -13,13 +13,17 @@ class Message(BaseModel):
 class Chat(BaseModel):
     id: str = Field(alias="_id")
     name: str
-    messages: list[Message]
+    messages: list[str]
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
 
 class ChatCreate(BaseModel):
     name: str
+
+
+class ChatUpdate(BaseModel):
+    name: str | None = None
 
 
 class ToolCall(BaseModel):
