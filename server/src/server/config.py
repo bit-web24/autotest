@@ -9,7 +9,8 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     # Database
-    DATABASE_URL: str = "sqlite:///./test.db"
+    DATABASE_URL: str = "mongodb://localhost:27017"
+    DATABASE_NAME: str = "autotest"
 
     # Security
     SECRET_KEY: str = "your-secret-key-change-this"

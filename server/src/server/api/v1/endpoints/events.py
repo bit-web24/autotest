@@ -1,21 +1,9 @@
 from fastapi import APIRouter, FastAPI, Query, Depends, Request
 from fastapi.responses import StreamingResponse
-from contextlib import asynccontextmanager
 
-from agent.supervisor.agent import build_agent
 from server.services.events_service import EventService
 
 router = APIRouter(prefix="/{chat_id}/events", tags=["Events"])
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    agent = await build_agent()
-    print(f"Agent initialized: {agent.name}")
-    app.state.event_service = EventService(agent)
-    print(f"Event service initialized: {app.state.event_service.agent.name}")
-    yield
-    # await app.state.event_service.close()
 
 
 def get_event_service(request: Request) -> EventService:
