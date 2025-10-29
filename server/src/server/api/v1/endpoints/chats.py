@@ -4,7 +4,7 @@ from server.services.chat_service import ChatService
 
 from server.api.v1.endpoints.messages import router as message_router
 from server.api.v1.endpoints.events import router as event_router
-from server.models.chat import Chat, ChatCreate
+from server.models.chat import Chat, ChatCreate, ChatUpdate
 from server.core.database import get_database
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -57,12 +57,12 @@ async def get_chat(
 )
 async def update_chat(
     chat_id: str,
-    name: str,
+    chat: ChatUpdate,
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Update a chat by ID."""
     chat_service = ChatService(db)
-    return await chat_service.update(chat_id, name)
+    return await chat_service.update(chat_id, chat)
 
 
 @router.delete("/{chat_id}")
