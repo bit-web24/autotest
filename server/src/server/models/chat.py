@@ -3,9 +3,10 @@ import datetime
 
 
 class Message(BaseModel):
-    id: str
+    id: str = Field(alias="_id")
     request: str
     response: str | None
+    chat_id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
 

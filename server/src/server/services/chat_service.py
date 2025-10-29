@@ -10,6 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 class ChatService:
     def __init__(self, db: AsyncIOMotorDatabase[dict[str, Any]]) -> None:
         self.collection: AsyncIOMotorCollection[dict[str, Any]] = db.chats
+        self.msg_collection: AsyncIOMotorCollection[dict[str, Any]] = db.messages
 
     async def create(self, chat: ChatCreate) -> Chat | None:
         chat_dict = {
@@ -50,8 +51,19 @@ class ChatService:
             return await self.get(chat_id)
         return None
 
-    async def delete(self, chat_id: str) -> None:
-        pass
+    async def delete(self, chat_id: str) -> int | None:
+        """Delete a chat by ID.
+
+        Args:
+            chat_id (str): The ID of the chat to delete.
+
+        Returns:
+            int | None: The number of deleted documents, or None if the chat was not found.
+        """
+        result = await self.collection.delete_one({"_id": chat_id})
+        if result.acknowledged and result.deleted_count > 0:
+            return await self.delete_messages(chat_id)
+        return None
 
     async def add_message(self, chat_id: str, message: Message) -> Message | None:
         pass
@@ -71,3 +83,17 @@ class ChatService:
 
     async def delete_message(self, chat_id: str, message_id: str) -> None:
         pass
+
+    async def delete_messages(self, chat_id: str) -> int | None:
+        """Delete all messages in a chat.
+
+        Args:
+            chat_id (str): The ID of the chat to delete messages from.
+
+        Returns:
+            int | None: The number of deleted documents, or None if the chat was not found.
+        """
+        result = await self.msg_collection.delete_many({"chat_id": chat_id})
+        if result.acknowledged and result.deleted_count > 0:
+            return result.deleted_count
+        return None

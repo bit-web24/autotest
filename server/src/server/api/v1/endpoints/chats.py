@@ -1,5 +1,5 @@
 from typing import Any
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from server.services.chat_service import ChatService
 
 from server.api.v1.endpoints.messages import router as message_router
@@ -22,8 +22,14 @@ async def create_chat(
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Create a new chat."""
-    chat_service = ChatService(db)
-    return await chat_service.create(chat)
+    try:
+        chat_service = ChatService(db)
+        _chat = await chat_service.create(chat)
+        if not _chat:
+            raise HTTPException(status_code=500, detail="Failed to create chat")
+        return _chat
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -34,8 +40,14 @@ async def get_chats(
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Get all chats."""
-    chat_service = ChatService(db)
-    return await chat_service.gets()
+    try:
+        chat_service = ChatService(db)
+        chats = await chat_service.gets()
+        if not chats:
+            raise HTTPException(status_code=404, detail="Chats Not Found")
+        return chats
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -47,8 +59,14 @@ async def get_chat(
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Get a chat by ID."""
-    chat_service = ChatService(db)
-    return await chat_service.get(chat_id)
+    try:
+        chat_service = ChatService(db)
+        chat = await chat_service.get(chat_id)
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat Not Found")
+        return chat
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.put(
@@ -61,8 +79,14 @@ async def update_chat(
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Update a chat by ID."""
-    chat_service = ChatService(db)
-    return await chat_service.update(chat_id, chat)
+    try:
+        chat_service = ChatService(db)
+        _chat = await chat_service.update(chat_id, chat)
+        if not _chat:
+            raise HTTPException(status_code=404, detail="Chat Could Not Be Updated")
+        return _chat
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/{chat_id}")
@@ -71,8 +95,13 @@ async def delete_chat(
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Delete a chat by ID."""
-    chat_service = ChatService(db)
-    return await chat_service.delete(chat_id)
+    try:
+        chat_service = ChatService(db)
+        result = await chat_service.delete(chat_id)
+        if result is None:
+            raise HTTPException(status_code=404, detail="Chat Not Found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 router.include_router(message_router)
