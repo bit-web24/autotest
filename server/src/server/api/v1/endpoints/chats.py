@@ -43,7 +43,7 @@ async def get_chats(
     try:
         chat_service = ChatService(db)
         chats = await chat_service.gets()
-        if not chats:
+        if chats is None:
             raise HTTPException(status_code=404, detail="Chats Not Found")
         return chats
     except Exception as e:

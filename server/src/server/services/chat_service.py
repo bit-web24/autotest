@@ -33,9 +33,12 @@ class ChatService:
             return Chat(**chat)
         return None
 
-    async def gets(self) -> list[Chat]:
-        chats = await self.collection.find().to_list(None)
-        return [Chat(**chat) for chat in chats] if chats else []
+    async def gets(self) -> list[Chat] | None:
+        try:
+            chats = await self.collection.find().to_list(None)
+            return [Chat(**chat) for chat in chats] if chats else []
+        except Exception:
+            return None
 
     async def update(self, chat_id: str, chat: ChatUpdate) -> Chat | None:
         result = await self.collection.update_one(
