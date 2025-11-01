@@ -1,6 +1,6 @@
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
-from server.models.chat import Message
+from server.models.chat import Message, MessageCreate, MessageUpdate
 from server.services.chat_service import ChatService
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from server.core.database import get_database
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/{chat_id}/messages", tags=["Messages"])
 )
 async def add_message(
     chat_id: str,
-    message: Message,
+    message: MessageCreate,
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Add a message to a chat."""
@@ -63,7 +63,7 @@ async def get_message(
     """Get a single message by ID."""
     chat_service = ChatService(db)
     try:
-        msg = await chat_service.get_message(chat_id, message_id)
+        msg = await chat_service.get_message(message_id)
         if msg is None:
             raise HTTPException(status_code=404, detail="Message not found")
         return msg
@@ -79,16 +79,16 @@ async def get_message(
 async def update_message(
     chat_id: str,
     message_id: str,
-    message: Message,
+    message: MessageUpdate,
     db: AsyncIOMotorDatabase[dict[str, Any]] = Depends(get_database),
 ):
     """Update a message by ID."""
     chat_service = ChatService(db)
     try:
-        msg = await chat_service.get_message(chat_id, message_id)
+        msg = await chat_service.get_message(message_id)
         if msg is None:
             raise HTTPException(status_code=404, detail="Message not found")
-        return await chat_service.update_message(chat_id, message_id, message)
+        return await chat_service.update_message(message_id, message)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -96,7 +96,7 @@ async def update_message(
 @router.delete(
     "/{message_id}",
     response_model=int,
-    status_code=204,
+    status_code=200,
 )
 async def delete_message(
     chat_id: str,
@@ -108,7 +108,7 @@ async def delete_message(
     try:
         result = await chat_service.delete_message(chat_id, message_id)
         if result is None:
-            raise HTTPException(status_code=404, detail="Chat not found")
+            raise HTTPException(status_code=404, detail="Message not found")
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
