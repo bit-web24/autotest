@@ -1,4 +1,5 @@
 from typing import TypedDict
+from pydantic import BaseModel
 
 
 class ToolCall(TypedDict):
@@ -9,3 +10,9 @@ class ToolCall(TypedDict):
 class Event(TypedDict):
     type: ToolCall | None
     status: str
+
+
+class UserInput(BaseModel):
+    """User message input"""
+
+    input: str

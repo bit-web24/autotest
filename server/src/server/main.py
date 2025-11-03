@@ -5,6 +5,7 @@ from server.api.v1.router import api_router
 from server.config import settings
 from server.core.database import connect_to_mongodb, close_mongodb_connection
 from server.services.events_service import EventService
+from server.core.agent import agent
 
 import uvicorn
 from fastapi import FastAPI
@@ -13,14 +14,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    agent = await build_agent()
-    print(f"Agent initialized: {agent.name}")
-    app.state.event_service = EventService(agent)
-    print(f"Event service initialized: {app.state.event_service.agent.name}")
-    await connect_to_mongodb()
-    yield
-    await close_mongodb_connection()
-    # await app.state.event_service.close()
+    try:
+        await agent.start()
+        await connect_to_mongodb()
+        yield
+    except Exception as e:
+        print(f"Failed to connect to MongoDB: {e}")
+    finally:
+        await close_mongodb_connection()
 
 
 app = FastAPI(
