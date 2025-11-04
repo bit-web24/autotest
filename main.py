@@ -39,7 +39,7 @@ async def main():
 
             async for event in agent_x.astream_events(
                 state,
-                config=state_config,
+                config=state_config("local-cli"),
                 version="v1",
             ):
                 etype = event["event"]
