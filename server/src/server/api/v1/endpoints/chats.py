@@ -107,6 +107,7 @@ async def delete_chat(
         result = await chat_service.delete(chat_id)
         if result is None:
             raise HTTPException(status_code=404, detail="Chat Not Found")
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
