@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Any, TypedDict
 from pydantic import BaseModel
 
 
@@ -7,12 +7,12 @@ class ToolCall(TypedDict):
     input: str
 
 
-class Event(TypedDict):
-    type: ToolCall | None
-    status: str
-
-
 class UserInput(BaseModel):
     """User message input"""
 
     input: str
+
+
+class Event(BaseModel):
+    name: str
+    payload: dict[str, Any] | None = None
