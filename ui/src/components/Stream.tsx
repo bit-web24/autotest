@@ -54,12 +54,14 @@ export default function Stream() {
     <div>
       <h1>{isStreaming ? "Streaming...." : "Stream Complete"}</h1>
       {messages.map((message, index) => (
-        <div key={index}>
-          {message.name} :{" "}
-          {typeof message.payload === "object"
-            ? JSON.stringify(message.payload)
-            : message.payload}
-        </div>
+        <span key={index}>
+          {(() => {
+            if (message.name === "on_chat_model_stream") {
+              return message.payload.chunk;
+            }
+            return "";
+          })()}
+        </span>
       ))}
     </div>
   );
