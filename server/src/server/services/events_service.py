@@ -1,12 +1,11 @@
-from typing import TypedDict
-from typing import AsyncGenerator
 import json
+from typing import AsyncGenerator, TypedDict
 
-from agent.supervisor.schemas import AgentState
 from agent.configs.state_config import state_config
-from server.models.event import Event
-
+from agent.supervisor.schemas import AgentState
 from langchain_core.messages import HumanMessage
+
+from server.models.event import Event
 
 
 class EventService:
@@ -19,17 +18,18 @@ class EventService:
         return AgentState(messages=state["messages"] + [human_msg])
 
     def sse_start(self):
-        return "event: start\ndata: [START]\n\n"
+        return "event: begin\ndata: [START]\n\n"
 
     def sse_response(self, stream_event: Event):
-        return f"data: {stream_event.model_dump_json(exclude_none=True)}\n\n"
+        return (
+            f"event: chunk\ndata: {stream_event.model_dump_json(exclude_none=True)}\n\n"
+        )
 
     def sse_err(self, error: Exception):
         err = {
-            "type": "error",
             "message": str(error),
         }
-        return f"data: {json.dumps(err)}\n\n"
+        return f"event: error\ndata: {json.dumps(err)}\n\n"
 
     def sse_end(self):
         return "event: done\ndata: [END]\n\n"
