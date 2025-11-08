@@ -14,7 +14,9 @@ interface MessageBubbleProps {
 }
 
 export default function MessageBubble({ message }: MessageBubbleProps) {
-  const [events, setEvents] = useState<ActivityEvent[]>([
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  setEvents([
+    ...events,
     {
       id: "1",
       type: "thinking",
