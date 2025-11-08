@@ -27,7 +27,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         timestamp: new Date(Date.now() - 5000),
       },
     ]);
-  }, [events]);
+  }, []);
 
   return (
     <div
