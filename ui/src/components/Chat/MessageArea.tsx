@@ -9,8 +9,7 @@ interface MessageAreaProps {
 }
 
 export default function MessagesArea({ messages }: MessageAreaProps) {
-  const messagesEndRef = useRef(null);
-
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
