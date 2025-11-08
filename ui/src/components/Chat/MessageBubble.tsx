@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityList } from "./ActivityIndicator";
 import type { ActivityEvent } from "./ActivityIndicator";
 
@@ -15,18 +15,19 @@ interface MessageBubbleProps {
 
 export default function MessageBubble({ message }: MessageBubbleProps) {
   const [events, setEvents] = useState<ActivityEvent[]>([]);
-  setEvents([
-    ...events,
-    {
-      id: "1",
-      type: "thinking",
-      title: "Thinking...",
-      output:
-        "Parsing user query...\nIdentifying intent: code generation\nPlanning approach...",
-      isComplete: false,
-      timestamp: new Date(Date.now() - 5000),
-    },
-  ]);
+  useEffect(() => {
+    setEvents([
+      {
+        id: "1",
+        type: "thinking",
+        title: "Thinking...",
+        output:
+          "Parsing user query...\nIdentifying intent: code generation\nPlanning approach...",
+        isComplete: false,
+        timestamp: new Date(Date.now() - 5000),
+      },
+    ]);
+  }, [events]);
 
   return (
     <div
