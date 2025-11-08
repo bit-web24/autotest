@@ -24,13 +24,13 @@ export default function InputArea({ value, onChange, onSend }: InputAreaProps) {
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
             rows={1}
-            className="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             style={{ maxHeight: "200px" }}
           />
           <button
             onClick={onSend}
             disabled={!value.trim()}
-            className="p-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
             <Send size={20} />
           </button>
