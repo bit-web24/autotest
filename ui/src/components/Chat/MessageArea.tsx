@@ -22,7 +22,7 @@ export default function MessagesArea({ messages }: MessagesAreaProps) {
   return (
     <div className="max-w-3xl mx-auto space-y-4">
       {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
+        <MessageBubble key={message._id} message={message} />
       ))}
     </div>
   );

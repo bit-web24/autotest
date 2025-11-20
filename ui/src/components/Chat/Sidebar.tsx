@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { Plus, MessageSquare, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import type { Message } from "./MessageBubble";
 
-// import SessionItem from "./SessionItem";
-import type { Session } from "./SessionItem";
+export interface Session {
+  _id: string;
+  name: string;
+  messages: Message[];
+  created_at: Date;
+  updated_at: Date;
+}
 
 interface SidebarProps {
   isOpen: boolean;
   sessions: Session[];
-  currentSessionId: number;
+  currentSessionId: string | null;
   onNewChat: () => void;
-  onSelectSession: (sessionId: number) => void;
-  onRenameSession: (sessionId: number, newTitle: string) => void;
-  onDeleteSession: (sessionId: number) => void;
+  onSelectSession: (sessionId: string) => void;
+  onRenameSession: (sessionId: string, newTitle: string) => void;
+  onDeleteSession: (sessionId: string) => void;
 }
 
 export default function Sidebar({
@@ -23,11 +29,11 @@ export default function Sidebar({
   onRenameSession,
   onDeleteSession,
 }: SidebarProps) {
-  const [editingSessionId, setEditingSessionId] = useState<number | null>(null);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
-  const [showMenu, setShowMenu] = useState<number | null>(null);
+  const [showMenu, setShowMenu] = useState<string | null>(null);
 
-  const handleRename = (sessionId: number, newTitle: string) => {
+  const handleRename = (sessionId: string, newTitle: string) => {
     onRenameSession(sessionId, newTitle);
     setEditingSessionId(null);
   };
@@ -49,38 +55,37 @@ export default function Sidebar({
       <div className="flex-1 overflow-y-auto p-2">
         {sessions.map((session) => (
           <div
-            key={session.id}
-            className={`group relative mb-1 rounded-lg ${
-              currentSessionId === session.id
-                ? "bg-gray-100"
-                : "hover:bg-gray-50"
-            } transition-colors`}
+            key={session._id}
+            className={`group relative mb-1 rounded-lg ${currentSessionId === session._id
+              ? "bg-gray-100"
+              : "hover:bg-gray-50"
+              } transition-colors`}
           >
-            {editingSessionId === session.id ? (
+            {editingSessionId === session._id ? (
               <input
                 type="text"
                 value={editingTitle}
                 onChange={(e) => setEditingTitle(e.target.value)}
-                onBlur={() => handleRename(session.id, editingTitle)}
+                onBlur={() => handleRename(session._id, editingTitle)}
                 onKeyPress={(e) =>
-                  e.key === "Enter" && handleRename(session.id, editingTitle)
+                  e.key === "Enter" && handleRename(session._id, editingTitle)
                 }
                 className="w-full px-3 py-2 rounded-lg text-sm outline-none border border-blue-500"
                 autoFocus
               />
             ) : (
               <div
-                onClick={() => onSelectSession(session.id)}
+                onClick={() => onSelectSession(session._id)}
                 className="flex items-center gap-2 px-3 py-2 cursor-pointer"
               >
                 <MessageSquare size={16} className="shrink-0 text-gray-500" />
                 <span className="flex-1 text-sm truncate text-gray-700">
-                  {session.title}
+                  {session.name}
                 </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowMenu(showMenu === session.id ? null : session.id);
+                    setShowMenu(showMenu === session._id ? null : session._id);
                   }}
                   className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200 transition-opacity"
                 >
@@ -89,12 +94,12 @@ export default function Sidebar({
               </div>
             )}
 
-            {showMenu === session.id && (
+            {showMenu === session._id && (
               <div className="absolute right-0 top-full mt-1 rounded-lg shadow-lg z-10 w-40 bg-white border border-gray-200">
                 <button
                   onClick={() => {
-                    setEditingSessionId(session.id);
-                    setEditingTitle(session.title);
+                    setEditingSessionId(session._id);
+                    setEditingTitle(session.name);
                     setShowMenu(null);
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -104,7 +109,7 @@ export default function Sidebar({
                 </button>
                 <button
                   onClick={() => {
-                    onDeleteSession(session.id);
+                    onDeleteSession(session._id);
                     setShowMenu(null);
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-gray-50"

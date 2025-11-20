@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import { ActivityList } from "./ActivityIndicator";
 import type { ActivityEvent } from "./ActivityIndicator";
 
-export interface Message {
-  id: number;
-  text: string;
-  sender: "user" | "ai";
-  timestamp: Date;
+interface BaseMessage {
+  request: string;
+}
+
+export interface CreateMessage extends BaseMessage { }
+
+export interface Message extends BaseMessage {
+  _id: string | null;
+  response: string | null;
+  created_at: Date;
+  updated_at: Date;
 }
 
 interface MessageBubbleProps {
@@ -30,28 +36,24 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
   }, []);
 
   return (
-    <div
-      className={`flex gap-3 ${
-        message.sender === "user" ? "justify-end" : "justify-start"
-      }`}
-    >
-      <div
-        className={`max-w-[80%] rounded-lg px-4 py-3 ${
-          message.sender === "user"
-            ? "bg-blue-500 text-white"
-            : "bg-white text-gray-800 border border-gray-200"
-        }`}
-      >
-        <p className="whitespace-pre-wrap text-sm">{message.text}</p>
-        {message.sender === "ai" ? (
-          <>
-            {" "}
-            <br /> <ActivityList events={events} />{" "}
-          </>
-        ) : (
-          ""
-        )}
+    <>
+      {/* User's request */}
+      <div className="flex gap-3 justify-end">
+        <div className="max-w-[80%] rounded-lg px-4 py-3 bg-blue-500 text-white">
+          <p className="whitespace-pre-wrap text-sm">{message.request}</p>
+        </div>
       </div>
-    </div>
+
+      {/* AI's response */}
+      {message.response && (
+        <div className="flex gap-3 justify-start">
+          <div className="max-w-[80%] rounded-lg px-4 py-3 bg-white text-gray-800 border border-gray-200">
+            <p className="whitespace-pre-wrap text-sm">{message.response}</p>
+            <br />
+            <ActivityList events={events} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
