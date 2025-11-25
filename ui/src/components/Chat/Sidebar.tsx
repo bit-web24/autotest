@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Plus, MessageSquare, MoreVertical, Edit2, Trash2 } from "lucide-react";
-import type { Message } from "./MessageBubble";
+// import type { Message } from "./MessageBubble";
 
 export interface Session {
   _id: string;
   name: string;
-  messages: Message[];
+  messages: string[];
   created_at: Date;
   updated_at: Date;
 }

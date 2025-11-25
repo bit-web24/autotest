@@ -11,7 +11,7 @@ const SERVER_BASE_URL = "http://localhost:8000";
 export interface Session {
   _id: string;
   name: string;
-  messages: Message[];
+  messages: string[];
   created_at: Date;
   updated_at: Date;
 }
@@ -22,9 +22,10 @@ export default function Chat() {
   const [inputMessage, setInputMessage] = useState<string>("");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSendingMessage, setIsSendingMessage] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const currentSession = sessions.find((s) => s._id === currentSessionId);
+  const currentSession: Session | undefined = sessions.find((s) => s._id === currentSessionId);
 
   // Load sessions on mount
   useEffect(() => {
@@ -71,29 +72,11 @@ export default function Chat() {
   }, []);
 
   const handleSendMessage = () => {
-    if (!inputMessage.trim() || !currentSessionId) return;
+    if (!inputMessage.trim() || !currentSessionId || isSendingMessage) return;
 
     const userRequest = inputMessage;
     setInputMessage("");
-
-    // Optimistic UI update - add message immediately with temporary ID
-    const tempMessage: Message = {
-      _id: `temp-${Date.now()}`,
-      request: userRequest,
-      response: null,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-
-    const optimisticSession = {
-      ...currentSession!,
-      messages: [...currentSession!.messages, tempMessage],
-    };
-    setSessions(
-      sessions.map((s) =>
-        s._id === currentSessionId ? optimisticSession : s,
-      ),
-    );
+    setIsSendingMessage(true);
 
     const newMessage: CreateMessage = {
       request: userRequest,
@@ -107,15 +90,13 @@ export default function Chat() {
       body: JSON.stringify(newMessage),
     })
       .then((response) => response.json())
-      .then((message) => {
-        // Replace temp message with real one from server
-        const updatedSession = {
-          ...currentSession!,
-          messages: [
-            ...currentSession!.messages.filter((m) => m._id !== tempMessage._id),
-            message,
-          ],
-        };
+      .then(() => {
+        // Fetch the updated session with all messages from the server
+        return fetch(`${SERVER_BASE_URL}/api/v1/chats/${currentSessionId}`);
+      })
+      .then((response) => response.json())
+      .then((updatedSession) => {
+        // Update the session with all messages from the server
         setSessions(
           sessions.map((s) =>
             s._id === currentSessionId ? updatedSession : s,
@@ -125,16 +106,9 @@ export default function Chat() {
       .catch((error) => {
         console.error("Error sending message:", error);
         setError("Failed to send message");
-        // Revert optimistic update on error
-        const revertedSession = {
-          ...currentSession!,
-          messages: currentSession!.messages.filter((m) => m._id !== tempMessage._id),
-        };
-        setSessions(
-          sessions.map((s) =>
-            s._id === currentSessionId ? revertedSession : s,
-          ),
-        );
+      })
+      .finally(() => {
+        setIsSendingMessage(false);
       });
   };
 
@@ -243,7 +217,7 @@ export default function Chat() {
         />
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
-          <MessagesArea messages={currentSession?.messages || []} />
+          <MessagesArea sessionId={currentSessionId} messages={currentSession?.messages || []} isLoading={isSendingMessage} />
         </div>
 
         <InputArea

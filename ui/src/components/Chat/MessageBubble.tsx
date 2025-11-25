@@ -24,7 +24,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
   useEffect(() => {
     setEvents([
       {
-        id: "1",
+        id: `${message._id}-1`,
         type: "thinking",
         title: "Thinking...",
         output:
@@ -33,10 +33,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         timestamp: new Date(Date.now() - 5000),
       },
     ]);
-  }, []);
+  }, [message._id]);
 
   return (
-    <>
+    <div className="space-y-4">
       {/* User's request */}
       <div className="flex gap-3 justify-end">
         <div className="max-w-[80%] rounded-lg px-4 py-3 bg-blue-500 text-white">
@@ -54,6 +54,6 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
