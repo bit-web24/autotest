@@ -1,4 +1,4 @@
-import { MessageSquare, Loader2 } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
 import MessageBubble from "./MessageBubble";
 import type { Message } from "./MessageBubble";
@@ -7,12 +7,20 @@ import { useEffect, useState } from "react";
 interface MessagesAreaProps {
   sessionId: string | null;
   messages: string[];
-  isLoading?: boolean;
+  streamingMessage?: Message | null;
+  streamContent?: string;
+  isStreaming?: boolean;
 }
 
 const SERVER_BASE_URL = "http://localhost:8000";
 
-export default function MessagesArea({ sessionId, messages, isLoading = false }: MessagesAreaProps) {
+export default function MessagesArea({
+  sessionId,
+  messages,
+  streamingMessage = null,
+  streamContent = '',
+  isStreaming = false
+}: MessagesAreaProps) {
   const [messagesBody, setMessagesBody] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -40,7 +48,7 @@ export default function MessagesArea({ sessionId, messages, isLoading = false }:
       });
   }, [sessionId, messages]);
 
-  if (messages.length === 0 && !isLoading) {
+  if (messages.length === 0 && !streamingMessage) {
     return (
       <div className="h-full flex items-center justify-center text-gray-400">
         <div className="text-center">
@@ -57,15 +65,13 @@ export default function MessagesArea({ sessionId, messages, isLoading = false }:
         <MessageBubble key={message._id} message={message} />
       ))}
 
-      {isLoading && (
-        <div className="flex gap-3 justify-start">
-          <div className="max-w-[80%] rounded-lg px-4 py-3 bg-white text-gray-800 border border-gray-200">
-            <div className="flex items-center gap-2">
-              <Loader2 className="animate-spin" size={16} />
-              <span className="text-sm text-gray-600">Processing your request...</span>
-            </div>
-          </div>
-        </div>
+      {streamingMessage && (
+        <MessageBubble
+          key={streamingMessage._id}
+          message={streamingMessage}
+          isStreaming={isStreaming}
+          streamContent={streamContent}
+        />
       )}
     </div>
   );

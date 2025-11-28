@@ -5,6 +5,7 @@ import ChatHeader from "./Chat/Header";
 import MessagesArea from "./Chat/MessageArea";
 import InputArea from "./Chat/InputArea";
 import type { Message, CreateMessage } from "./Chat/MessageBubble";
+import { useSSEStream } from "../hooks/useSSEStream";
 
 const SERVER_BASE_URL = "http://localhost:8000";
 
@@ -22,8 +23,11 @@ export default function Chat() {
   const [inputMessage, setInputMessage] = useState<string>("");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSendingMessage, setIsSendingMessage] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Streaming message state
+  const [streamingMessage, setStreamingMessage] = useState<Message | null>(null);
+  const { streamState, startStream } = useSSEStream();
 
   const currentSession: Session | undefined = sessions.find((s) => s._id === currentSessionId);
 
@@ -72,44 +76,71 @@ export default function Chat() {
   }, []);
 
   const handleSendMessage = () => {
-    if (!inputMessage.trim() || !currentSessionId || isSendingMessage) return;
+    if (!inputMessage.trim() || !currentSessionId || streamState.isStreaming) return;
 
     const userRequest = inputMessage;
     setInputMessage("");
-    setIsSendingMessage(true);
 
-    const newMessage: CreateMessage = {
+    // Create temporary streaming message
+    const tempMessage: Message = {
+      _id: `temp-${Date.now()}`,
       request: userRequest,
+      response: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
-    fetch(`${SERVER_BASE_URL}/api/v1/chats/${currentSessionId}/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newMessage),
-    })
-      .then((response) => response.json())
-      .then(() => {
-        // Fetch the updated session with all messages from the server
-        return fetch(`${SERVER_BASE_URL}/api/v1/chats/${currentSessionId}`);
-      })
-      .then((response) => response.json())
-      .then((updatedSession) => {
-        // Update the session with all messages from the server
-        setSessions(
-          sessions.map((s) =>
-            s._id === currentSessionId ? updatedSession : s,
-          ),
-        );
-      })
-      .catch((error) => {
-        console.error("Error sending message:", error);
-        setError("Failed to send message");
-      })
-      .finally(() => {
-        setIsSendingMessage(false);
-      });
+    setStreamingMessage(tempMessage);
+
+    // Start SSE stream
+    startStream(
+      currentSessionId,
+      userRequest,
+      async (content: string) => {
+        // Stream completed - save message with response to database
+        try {
+          const newMessage: CreateMessage = {
+            request: userRequest,
+            response: content, // Include the AI's response
+          };
+
+          const response = await fetch(
+            `${SERVER_BASE_URL}/api/v1/chats/${currentSessionId}/messages`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newMessage),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('Failed to save message');
+          }
+
+          // Fetch updated session
+          const sessionResponse = await fetch(
+            `${SERVER_BASE_URL}/api/v1/chats/${currentSessionId}`
+          );
+          const updatedSession = await sessionResponse.json();
+
+          // Update sessions with saved messages
+          setSessions(
+            sessions.map((s) =>
+              s._id === currentSessionId ? updatedSession : s
+            )
+          );
+
+          // Clear streaming message
+          setStreamingMessage(null);
+        } catch (error) {
+          console.error("Error saving message:", error);
+          setError("Failed to save message");
+          setStreamingMessage(null);
+        }
+      }
+    );
   };
 
   const handleNewChat = () => {
@@ -217,7 +248,13 @@ export default function Chat() {
         />
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
-          <MessagesArea sessionId={currentSessionId} messages={currentSession?.messages || []} isLoading={isSendingMessage} />
+          <MessagesArea
+            sessionId={currentSessionId}
+            messages={currentSession?.messages || []}
+            streamingMessage={streamingMessage}
+            streamContent={streamState.content}
+            isStreaming={streamState.isStreaming}
+          />
         </div>
 
         <InputArea
