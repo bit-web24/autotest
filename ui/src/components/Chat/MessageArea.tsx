@@ -2,7 +2,7 @@ import { MessageSquare } from "lucide-react";
 
 import MessageBubble from "./MessageBubble";
 import type { Message } from "./MessageBubble";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface MessagesAreaProps {
   sessionId: string | null;
@@ -22,6 +22,12 @@ export default function MessagesArea({
   isStreaming = false
 }: MessagesAreaProps) {
   const [messagesBody, setMessagesBody] = useState<Message[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Autoscroll to bottom when messages change or streaming updates
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messagesBody, streamingMessage, streamContent, isStreaming]);
 
   useEffect(() => {
     // Reset messages when sessionId or messages array changes
@@ -73,6 +79,9 @@ export default function MessagesArea({
           streamContent={streamContent}
         />
       )}
+
+      {/* Invisible div for autoscroll */}
+      <div ref={messagesEndRef} />
     </div>
   );
 }
