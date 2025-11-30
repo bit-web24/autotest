@@ -56,9 +56,11 @@ class EventService:
 
         custom_event.payload["thread_id"] = event["metadata"]["thread_id"]
 
-        if reasoning:
+        # Safely check if reasoning_content exists
+        reasoning_content = reasoning.get("reasoning_content") if reasoning else None
+        if reasoning_content:
             custom_event.payload["reasoning"] = True
-            custom_event.payload["chunk"] = reasoning["reasoning_content"]
+            custom_event.payload["chunk"] = reasoning_content
         else:
             custom_event.payload["reasoning"] = False
             custom_event.payload["chunk"] = chunk.content
@@ -75,7 +77,8 @@ class EventService:
 
         message = event["data"]["output"]["generations"][0][0]["message"]
         output = message.content
-        reasoning = message.additional_kwargs["reasoning_content"]
+        # Safely access reasoning_content, default to None if not present
+        reasoning = message.additional_kwargs.get("reasoning_content")
         thread_id = event["metadata"]["thread_id"]
         usage_metadata = message.usage_metadata
 
