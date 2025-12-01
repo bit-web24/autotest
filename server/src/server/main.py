@@ -1,15 +1,14 @@
 from contextlib import asynccontextmanager
 
-from agent.supervisor.agent import build_agent
-from server.api.v1.router import api_router
-from server.config import settings
-from server.core.database import connect_to_mongodb, close_mongodb_connection
-from server.services.events_service import EventService
-from server.core.agent import agent
-
 import uvicorn
+from agent.supervisor.agent import build_agent
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from server.api.v1.router import api_router
+from server.config import settings
+from server.core.agent import agent
+from server.core.database import close_mongodb_connection, connect_to_mongodb
 
 
 @asynccontextmanager
