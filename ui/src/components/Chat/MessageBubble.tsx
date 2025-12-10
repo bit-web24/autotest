@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ActivityList } from "./ActivityIndicator";
 import type { ActivityEvent } from "./ActivityIndicator";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 interface BaseMessage {
   request: string;
@@ -61,12 +62,13 @@ export default function MessageBubble({
       {showResponse && (
         <div className="flex gap-3 justify-start">
           <div className="max-w-[80%] rounded-lg px-4 py-3 bg-white text-gray-800 border border-gray-200">
-            <p className="whitespace-pre-wrap text-sm">
-              {displayContent}
+            <div className="text-sm">
+              <MarkdownRenderer content={displayContent} />
+
               {isStreaming && (
                 <span className="inline-block w-2 h-4 ml-1 bg-gray-800 animate-pulse" />
               )}
-            </p>
+            </div>
             {/* {!isStreaming && (
               <>
                 <br />
