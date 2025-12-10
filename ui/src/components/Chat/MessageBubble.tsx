@@ -67,12 +67,12 @@ export default function MessageBubble({
                 <span className="inline-block w-2 h-4 ml-1 bg-gray-800 animate-pulse" />
               )}
             </p>
-            {!isStreaming && (
+            {/* {!isStreaming && (
               <>
                 <br />
                 <ActivityList events={events} />
               </>
-            )}
+            )} */}
           </div>
         </div>
       )}
