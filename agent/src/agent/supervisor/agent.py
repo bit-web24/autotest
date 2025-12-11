@@ -18,7 +18,7 @@ from agent.supervisor.hooks.pre_model_hook import (
     SummaryState,
     summarization_node,
 )  # pre_model_hook
-from agent.supervisor.memory import checkpoint_connection
+from agent.supervisor.memory import get_checkpointer
 from agent.supervisor.prompts import supervisor_prompt
 from agent.supervisor.schemas import AgentState
 from agent.supervisor.tools import client
@@ -53,5 +53,5 @@ async def build_agent():
         pre_model_hook=summarization_node,
         state_schema=SummaryState,
     )
-    memory = AsyncSqliteSaver(await checkpoint_connection())
+    memory = await get_checkpointer()
     return workflow.compile(checkpointer=memory)

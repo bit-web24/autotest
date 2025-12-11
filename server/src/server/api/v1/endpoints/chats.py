@@ -1,13 +1,14 @@
 from typing import Any
+
+from agent.supervisor.memory import delete_chat_thread
 from fastapi import APIRouter, Depends, HTTPException
-from server.services.chat_service import ChatService
-
-from server.api.v1.endpoints.messages import router as message_router
-from server.api.v1.endpoints.events import router as event_router
-from server.models.chat import Chat, ChatCreate, ChatUpdate
-from server.core.database import get_database
-
 from motor.motor_asyncio import AsyncIOMotorDatabase
+
+from server.api.v1.endpoints.events import router as event_router
+from server.api.v1.endpoints.messages import router as message_router
+from server.core.database import get_database
+from server.models.chat import Chat, ChatCreate, ChatUpdate
+from server.services.chat_service import ChatService
 
 router = APIRouter()
 
@@ -105,7 +106,8 @@ async def delete_chat(
     try:
         chat_service = ChatService(db)
         result = await chat_service.delete(chat_id)
-        if result is None:
+        deleted = await delete_chat_thread(chat_id)
+        if (result is None) and (not deleted):
             raise HTTPException(status_code=404, detail="Chat Not Found")
         return result
     except Exception as e:
