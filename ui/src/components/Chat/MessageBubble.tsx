@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { ActivityList } from "./ActivityIndicator";
-import type { ActivityEvent } from "./ActivityIndicator";
+
+
+
 import MarkdownRenderer from "./MarkdownRenderer";
 
 interface BaseMessage {
@@ -29,21 +29,9 @@ export default function MessageBubble({
   isStreaming = false,
   streamContent = ''
 }: MessageBubbleProps) {
-  const [events, setEvents] = useState<ActivityEvent[]>([]);
 
-  useEffect(() => {
-    setEvents([
-      {
-        id: `${message._id}-1`,
-        type: "thinking",
-        title: "Thinking...",
-        output:
-          "Parsing user query...\nIdentifying intent: code generation\nPlanning approach...",
-        isComplete: false,
-        timestamp: new Date(Date.now() - 5000),
-      },
-    ]);
-  }, [message._id]);
+
+
 
   // Determine what content to display for the AI response
   const displayContent = isStreaming ? streamContent : message.response;

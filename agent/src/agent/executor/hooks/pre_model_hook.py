@@ -2,7 +2,7 @@ from collections import defaultdict
 from langchain_core.messages.utils import count_tokens_approximately, trim_messages
 from agent.executor.schemas import ExecutorState
 from langmem.short_term import SummarizationNode
-from agent.models import local_llm as _model
+from agent.models import groq_llm as _model
 from typing import Any
 
 # This function will be added as a new node in ReAct agent graph
