@@ -1,26 +1,27 @@
 import asyncio
 
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-from langchain_groq import ChatGroq
-from pydantic import SecretStr
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_groq import ChatGroq
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph_supervisor import create_supervisor
+from pydantic import SecretStr
 
-from agent.supervisor.schemas import AgentState
-from agent.settings import settings
-from agent.supervisor.prompts import supervisor_prompt
-from agent.planner.agent import planner
 from agent.coder.agent import coder
-from agent.executor.agent import executor
-from agent.supervisor.tools import client
 
 
 # from agent.models import local_llm as _model
 from agent.models import groq_llm as _model
+from agent.planner.agent import planner
+from agent.settings import settings
 from agent.supervisor.hooks.pre_model_hook import (
     SummaryState,
     summarization_node,
 )  # pre_model_hook
+from agent.supervisor.memory import get_checkpointer
+from agent.supervisor.prompts import supervisor_prompt
+from agent.supervisor.schemas import AgentState
+from agent.supervisor.tools import client
 
 
 def add_user_message(state: AgentState, user_text: str) -> AgentState:
@@ -29,8 +30,8 @@ def add_user_message(state: AgentState, user_text: str) -> AgentState:
 
 
 async def build_agent():
-    planner_agent, coder_agent, executor_agent = await asyncio.gather(
-        planner(), coder(), executor()
+    planner_agent, coder_agent = await asyncio.gather(
+        planner(), coder()
     )
 
     _supervisor_prompt = ChatPromptTemplate.from_messages(
@@ -44,7 +45,7 @@ async def build_agent():
     workflow = create_supervisor(
         supervisor_name="workflow_manager",
         model=model,
-        agents=[planner_agent, coder_agent, executor_agent],
+        agents=[planner_agent, coder_agent],
         tools=[],
         prompt=_supervisor_prompt,
         add_handoff_messages=True,
@@ -52,5 +53,5 @@ async def build_agent():
         pre_model_hook=summarization_node,
         state_schema=SummaryState,
     )
-
-    return workflow.compile()
+    memory = await get_checkpointer()
+    return workflow.compile(checkpointer=memory)

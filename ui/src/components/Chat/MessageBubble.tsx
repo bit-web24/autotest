@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { ActivityList } from "./ActivityIndicator";
-import type { ActivityEvent } from "./ActivityIndicator";
+
+
+
+import MarkdownRenderer from "./MarkdownRenderer";
 
 interface BaseMessage {
   request: string;
@@ -28,25 +29,13 @@ export default function MessageBubble({
   isStreaming = false,
   streamContent = ''
 }: MessageBubbleProps) {
-  const [events, setEvents] = useState<ActivityEvent[]>([]);
 
-  useEffect(() => {
-    setEvents([
-      {
-        id: `${message._id}-1`,
-        type: "thinking",
-        title: "Thinking...",
-        output:
-          "Parsing user query...\nIdentifying intent: code generation\nPlanning approach...",
-        isComplete: false,
-        timestamp: new Date(Date.now() - 5000),
-      },
-    ]);
-  }, [message._id]);
+
+
 
   // Determine what content to display for the AI response
   const displayContent = isStreaming ? streamContent : message.response;
-  const showResponse = displayContent && displayContent.length > 0;
+  const showResponse = (displayContent && displayContent.length > 0) || isStreaming;
 
   return (
     <div className="space-y-4">
@@ -61,30 +50,19 @@ export default function MessageBubble({
       {showResponse && (
         <div className="flex gap-3 justify-start">
           <div className="max-w-[80%] rounded-lg px-4 py-3 bg-white text-gray-800 border border-gray-200">
-            <p className="whitespace-pre-wrap text-sm">
-              {displayContent}
+            <div className="text-sm">
+              <MarkdownRenderer content={displayContent || ""} />
+
               {isStreaming && (
                 <span className="inline-block w-2 h-4 ml-1 bg-gray-800 animate-pulse" />
               )}
-            </p>
-            {!isStreaming && (
+            </div>
+            {/* {!isStreaming && (
               <>
                 <br />
                 <ActivityList events={events} />
               </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Loading indicator when streaming but no content yet */}
-      {isStreaming && !showResponse && (
-        <div className="flex gap-3 justify-start">
-          <div className="max-w-[80%] rounded-lg px-4 py-3 bg-white text-gray-800 border border-gray-200">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Processing your request</span>
-              <span className="inline-block w-2 h-4 bg-gray-800 animate-pulse" />
-            </div>
+            )} */}
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 from agent.coder.schemas import CoderState
 from langmem.short_term import SummarizationNode
-from agent.models import local_llm as _model
+from agent.models import groq_llm as _model
 from langchain_core.messages.utils import count_tokens_approximately, trim_messages
 from typing import Any
 
