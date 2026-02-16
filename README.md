@@ -35,19 +35,42 @@ The architecture consists of a central **Supervisor** that orchestrates speciali
 
 ```mermaid
 graph TD
-    User[User Request] --> Supervisor
-    Supervisor -->|Delegate Task| Planner
-    Supervisor -->|Delegate Task| Coder
-    Planner -->|Plan/Status| Supervisor
-    Coder -->|Code/Results| Supervisor
-    Supervisor -->|Final Response| User
+    User([User Request]) --> Supervisor
     
-    subgraph "Agent System"
-        Supervisor
-        Planner
-        Coder
+    subgraph "Core Orchestration (LangGraph)"
+        Supervisor[Supervisor Agent]
+        State[(Shared Graph State)]
+        Persistence[(SQLite Persistence)]
+        Summarizer[Summarizer / Reflector]
+        
+        Supervisor <--> State
+        State <--> Persistence
+        State <--> Summarizer
     end
+
+    subgraph "Worker Agents (ReAct)"
+        Planner[Planner Agent]
+        Coder[Coder Agent]
+    end
+
+    subgraph "MCP Infrastructure"
+        FS_MCP[Filesystem MCP Server]
+        Context_MCP[Context7 MCP Server]
+    end
+
+    Supervisor -- "Delegates Task" --> Planner
+    Supervisor -- "Delegates Task" --> Coder
+    
+    Planner -- "Read/Write Files" --> FS_MCP
+    Coder -- "Read/Write/Execute" --> FS_MCP
+    Coder -- "Semantic Search" --> Context_MCP
+    
+    Planner -- "Status/Plan" --> Supervisor
+    Coder -- "Results/Code" --> Supervisor
+    
+    Supervisor --> User
 ```
+
 
 ### Key Features
 
