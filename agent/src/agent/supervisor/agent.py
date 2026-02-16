@@ -8,7 +8,7 @@ from langgraph_supervisor import create_supervisor
 from pydantic import SecretStr
 
 from agent.coder.agent import coder
-from agent.executor.agent import executor
+
 
 # from agent.models import local_llm as _model
 from agent.models import groq_llm as _model
@@ -30,8 +30,8 @@ def add_user_message(state: AgentState, user_text: str) -> AgentState:
 
 
 async def build_agent():
-    planner_agent, coder_agent, executor_agent = await asyncio.gather(
-        planner(), coder(), executor()
+    planner_agent, coder_agent = await asyncio.gather(
+        planner(), coder()
     )
 
     _supervisor_prompt = ChatPromptTemplate.from_messages(
@@ -45,7 +45,7 @@ async def build_agent():
     workflow = create_supervisor(
         supervisor_name="workflow_manager",
         model=model,
-        agents=[planner_agent, coder_agent, executor_agent],
+        agents=[planner_agent, coder_agent],
         tools=[],
         prompt=_supervisor_prompt,
         add_handoff_messages=True,
